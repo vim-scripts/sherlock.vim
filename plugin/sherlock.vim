@@ -9,8 +9,8 @@ if (!exists('sherlock#disable') || sherlock#disable == 0) && !exists('sherlock#l
 	let sherlock#name = 'sherlock'
 	let sherlock#loaded = 1
 
-	if v:version < 700
-		call fch#message#loadingError(sherlock#name, "Vim version >= 7 is required")
+	if v:version >= 700
+		echo "Vim version >= 7 is required for sherlock.vim."
 	elseif &cp
 		call fch#message#loadingError(sherlock#name, "No compatible mode is required")
 	else

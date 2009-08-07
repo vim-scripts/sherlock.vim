@@ -36,7 +36,7 @@ function s:reset()
 
 	return commandLine
 endfunction
-"escape {{{1
+"s:escape {{{1
 function s:escape()
 	let commandLine = s:pattern['commandLine']
 
