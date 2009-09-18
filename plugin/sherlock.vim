@@ -9,21 +9,19 @@ if (!exists('sherlock#disable') || sherlock#disable == 0) && !exists('sherlock#l
 	let sherlock#name = 'sherlock'
 	let sherlock#loaded = 1
 
-	if v:version >= 700
+	if v:version < 700
 		echo "Vim version >= 7 is required for sherlock.vim."
-	elseif &cp
-		call fch#message#loadingError(sherlock#name, "No compatible mode is required")
 	else
 		let s:cpo = &cpo
 
 		setlocal cpo&vim
 
 		if !hasmapto('<Plug>sherlockCompleteBackward()')
-			cnoremap <C-S-Tab> <C-\>esherlock#completeBackward()<CR>
+			cnoremap <silent> <C-S-Tab> <C-\>esherlock#completeBackward()<CR>
 		endif
 
 		if !hasmapto('sherlock#completeForward()')
-			cnoremap <C-Tab> <C-\>esherlock#completeForward()<CR>
+			cnoremap <silent> <C-Tab> <C-\>esherlock#completeForward()<CR>
 		endif
 
 		let &cpo= s:cpo

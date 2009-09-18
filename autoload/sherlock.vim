@@ -4,6 +4,7 @@
 " Licence:					GPL version 2.0 license
 "=============================================================================
 let s:incsearch = &incsearch
+let s:folding = has('folding')
 "s:reset {{{1
 function s:reset()
 	let commandLine = getcmdline()
@@ -97,22 +98,24 @@ function s:complete(direction)
 
 			let commandLine = s:pattern['commandLine']
 
-			let position = searchpos(s:pattern['value'], 'w' . (a:direction < 0 ? 'b' : ''))
+			let position = searchpos(s:pattern['value'] . '\k*', 'w' . (a:direction < 0 ? 'b' : ''))
 
 			if (position[0] == 0 && position[1] == 0) || (len(s:pattern['position']) > 0 && position[0] == s:pattern['position'][0] && position[1] == s:pattern['position'][1])
 				call s:reset()
 			else
-				if s:pattern['folding'] && position[0] != s:pattern['folding']
-					normal zx
-					let s:pattern['folding'] = 0
+				if s:folding
+					if s:pattern['folding'] && position[0] != s:pattern['folding']
+						normal zx
+						let s:pattern['folding'] = 0
+					endif
+
+					if foldclosed(position[0]) || position[0] == s:pattern['folding']
+						normal zv
+						let s:pattern['folding'] = position[0]
+					endif
 				endif
 
-				if foldclosed(position[0]) || position[0] == s:pattern['folding']
-					normal zv
-					let s:pattern['folding'] = position[0]
-				endif
-
-				let match = escape(substitute(strpart(getline(position[0]), position[1] - 1), '^' . s:pattern['value'] . '\([^[:space:]]*\).*$', '\1', ''), '/[]')
+				let match = escape(substitute(strpart(getline(position[0]), position[1] - 1), '^' . s:pattern['value'] . '\(\k*\).*$', '\1', ''), '/[]')
 				let s:pattern['match'] = s:pattern['value'] . match
 
 				if len(s:pattern['position']) <= 0
