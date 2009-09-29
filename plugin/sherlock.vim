@@ -24,6 +24,8 @@ if (!exists('sherlock#disable') || sherlock#disable == 0) && !exists('sherlock#l
 			cnoremap <silent> <C-Tab> <C-\>esherlock#completeForward()<CR>
 		endif
 
+		command -nargs=0 SherlockVimball call sherlock#makeVimball()
+
 		let &cpo= s:cpo
 		unlet s:cpo
 	endif

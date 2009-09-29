@@ -29,8 +29,6 @@ function s:reset()
 			normal zx
 			let s:pattern['folding'] = 0
 		endif
-
-		redraw
 	endif
 
 	let s:pattern = { 'value': '', 'commandLine': '', 'position': [], 'matchID': 0, 'match': '', 'folding': 0 }
@@ -65,14 +63,18 @@ function s:complete(direction)
 
 	let commandLine = getcmdline()
 	let commandType = getcmdtype()
+	let cursorPosition = getcmdpos() - 1
 
 	if commandType == ':' || commandType == '/' || commandType == '?'
 		let value = ''
+		let separator = ''
 
 		if commandType == '/' || commandType == '?'
-			let value = commandLine
+			let value = strpart(commandLine, 0, cursorPosition)
+			let separator = commandType
 		elseif commandType == ':' && commandLine =~ '\/.\{-}$'
-			let value = substitute(commandLine, '^.*\/\(.\{-}\)$', '\1', '')
+			let value = substitute(strpart(commandLine, 0, cursorPosition), '^.*\/\(.\{-}\)$', '\1', '')
+			let separator = '/'
 		endif
 
 		if value == ''
@@ -122,19 +124,60 @@ function s:complete(direction)
 					let s:pattern['position'] = position
 				endif
 
-				let commandLine .= match
+				let separatorIndex = stridx(commandLine, separator, cursorPosition)
+				let commandLine = strpart(commandLine, 0, cursorPosition) . match . (separatorIndex < 0 ? '' : strpart(commandLine, separatorIndex))
 
 				call s:setMatch(match)
 			endif
 
 			nohlsearch
-
-			redraw
 		endif
 	endif
 
 	return commandLine
 endfunction
+"makeVimball {{{1
+function sherlock#makeVimball()
+	split sherlockVimball
+
+	setlocal bufhidden=delete
+	setlocal nobuflisted
+	setlocal noswapfile
+
+	let files = 0
+
+	for file in split(globpath(&runtimepath, '**/sherlock*'), "\n")
+		for runtimepath in split(&runtimepath, ',')
+			if file =~ '^' . runtimepath
+				if getftype(file) != 'dir'
+					let files += 1
+					call setline(files, substitute(file, '^' . runtimepath . '/', '', ''))
+				else
+					for subFile in split(glob(file . '/**'), "\n")
+						if getftype(subFile) != 'dir'
+							let files += 1
+							call setline(files, substitute(subFile, '^' . runtimepath . '/', '', ''))
+						endif
+					endfor
+				endif
+			endif
+		endfor
+	endfor
+
+	try
+		execute '%MkVimball! sherlock'
+
+		setlocal nomodified
+		bwipeout
+
+		echomsg 'Vimball is in ''' . getcwd() . ''''
+	catch /.*/
+		echohl ErrorMsg
+		echomsg v:exception
+		echohl None
+	endtry
+endfunction
+" vim:filetype=vim foldmethod=marker shiftwidth=3 tabstop=3
 "sherlock#completeForward {{{1
 function sherlock#completeForward()
 	return s:complete(1)
