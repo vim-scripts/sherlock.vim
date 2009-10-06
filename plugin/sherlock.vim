@@ -17,11 +17,11 @@ if (!exists('sherlock#disable') || sherlock#disable == 0) && !exists('sherlock#l
 		setlocal cpo&vim
 
 		if !hasmapto('<Plug>sherlockCompleteBackward()')
-			cnoremap <silent> <C-S-Tab> <C-\>esherlock#completeBackward()<CR>
+			cnoremap <C-S-Tab> <C-\>esherlock#completeBackward()<CR>
 		endif
 
 		if !hasmapto('sherlock#completeForward()')
-			cnoremap <silent> <C-Tab> <C-\>esherlock#completeForward()<CR>
+			cnoremap <C-Tab> <C-\>esherlock#completeForward()<CR>
 		endif
 
 		command -nargs=0 SherlockVimball call sherlock#makeVimball()
